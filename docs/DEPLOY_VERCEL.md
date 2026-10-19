@@ -41,8 +41,15 @@ Node en Vercel: **24.x** (requerido; 20.x ya está discontinuado en Vercel).
 
 ## Tras el deploy
 
+Usa la URL real del proyecto en el dashboard de Vercel (no un placeholder).
+
 ```text
-GET https://<tu-proyecto>.vercel.app/api/health
+GET https://<nombre-real>.vercel.app/
+GET https://<nombre-real>.vercel.app/api/health
 ```
+
+Debes ver JSON del API (`certificados-andes`), **no** una página React.
+
+Si ves un frontend ajeno (p. ej. “Seguridad de la información”), ese dominio pertenece a **otro proyecto** de Vercel: revisa Project → Settings → Domains / Git.
 
 Cron nocturno: `GET /api/cron/sync` (7:00 UTC ≈ 2:00 Colombia).

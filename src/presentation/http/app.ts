@@ -28,6 +28,15 @@ export function createApp(
     });
   }
 
+  app.get('/', (_req, res) => {
+    res.json({
+      success: true,
+      service: 'certificados-andes',
+      message: 'API de certificación LearnWorlds → POK',
+      health: '/api/health',
+    });
+  });
+
   app.use('/api', createApiRouter(container));
   app.use(createErrorHandler(container.logger));
   return app;
