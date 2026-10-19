@@ -100,6 +100,13 @@ export class InMemoryStudentRepository implements IStudentRepository {
     return [...this.store.values()].find((s) => s.learnWorldsUserId === id) ?? null;
   }
 
+  async findByEmail(email: string): Promise<Student | null> {
+    const normalized = email.toLowerCase().trim();
+    return (
+      [...this.store.values()].find((s) => s.email === normalized) ?? null
+    );
+  }
+
   async findByIds(ids: string[]): Promise<Student[]> {
     return ids.map((id) => this.store.get(id)).filter(Boolean) as Student[];
   }

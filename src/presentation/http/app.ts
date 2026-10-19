@@ -17,6 +17,19 @@ export function createApp(
   app.use(cors());
   app.use(express.json());
 
+  // Public probes — no DB required (so Vercel health works even if Mongo is misconfigured)
+  app.get('/', (_req, res) => {
+    res.json({
+      success: true,
+      service: 'certificados-andes',
+      message: 'API de certificación LearnWorlds → POK',
+      health: '/api/health',
+    });
+  });
+  app.get('/api/health', (_req, res) => {
+    res.json({ success: true, message: 'API funcionando correctamente' });
+  });
+
   if (options.ensureReady) {
     app.use(async (_req, _res, next) => {
       try {
@@ -27,15 +40,6 @@ export function createApp(
       }
     });
   }
-
-  app.get('/', (_req, res) => {
-    res.json({
-      success: true,
-      service: 'certificados-andes',
-      message: 'API de certificación LearnWorlds → POK',
-      health: '/api/health',
-    });
-  });
 
   app.use('/api', createApiRouter(container));
   app.use(createErrorHandler(container.logger));

@@ -19,6 +19,21 @@ export class CertificationController {
     }
   };
 
+  emitByEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const cert = await this.container.useCases.emitCredentialByEmail.execute({
+        email: req.body.email,
+        courseConfigId: req.body.courseConfigId,
+        learnWorldsCourseId: req.body.learnWorldsCourseId,
+        certificationCycle: req.body.certificationCycle,
+        simulation: req.body.simulation === true,
+      });
+      res.status(201).json({ success: true, data: serializeCertification(cert) });
+    } catch (e) {
+      next(e);
+    }
+  };
+
   status = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const view = await this.container.useCases.queryEmissionStatus.execute(

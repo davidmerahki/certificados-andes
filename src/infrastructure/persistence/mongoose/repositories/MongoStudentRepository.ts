@@ -52,6 +52,13 @@ export class MongoStudentRepository implements IStudentRepository {
     return doc ? this.toDomain(doc) : null;
   }
 
+  async findByEmail(email: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      email: email.toLowerCase().trim(),
+    });
+    return doc ? this.toDomain(doc) : null;
+  }
+
   async findByIds(ids: string[]): Promise<Student[]> {
     const docs = await StudentModel.find({ _id: { $in: ids } });
     return docs.map((d) => this.toDomain(d));

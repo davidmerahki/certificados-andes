@@ -12,10 +12,6 @@ export function createApiRouter(container: ApplicationContainer): Router {
   const sync = new SyncController(container);
   const certs = new CertificationController(container);
 
-  router.get('/health', (_req, res) => {
-    res.json({ success: true, message: 'API funcionando correctamente' });
-  });
-
   /**
    * Vercel Cron entrypoint (schedule in vercel.json).
    * Auth: Authorization Bearer CRON_SECRET, or x-api-key ADMIN_API_KEY.
@@ -81,6 +77,7 @@ export function createApiRouter(container: ApplicationContainer): Router {
 
   // Certifications
   router.post('/certifications/emit', auth, certs.emit);
+  router.post('/certifications/emit-by-email', auth, certs.emitByEmail);
   router.get('/certifications/history', auth, certs.history);
   router.get('/certifications/:id', auth, certs.status);
   router.post('/certifications/:id/retry', auth, certs.retry);

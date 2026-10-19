@@ -40,6 +40,8 @@ import { QuerySyncRunUseCase } from '../../application/use-cases/sync/QuerySyncR
 import { IdentifyEligibleStudentsUseCase } from '../../application/use-cases/certification/IdentifyEligibleStudentsUseCase';
 import { SimulateEmissionsUseCase } from '../../application/use-cases/certification/SimulateEmissionsUseCase';
 import { EmitCredentialUseCase } from '../../application/use-cases/certification/EmitCredentialUseCase';
+import { EmitCredentialByEmailUseCase } from '../../application/use-cases/certification/EmitCredentialByEmailUseCase';
+import { EnsureStudentFromLearnWorldsUseCase } from '../../application/use-cases/certification/EnsureStudentFromLearnWorldsUseCase';
 import { QueryEmissionStatusUseCase } from '../../application/use-cases/certification/QueryEmissionStatusUseCase';
 import { RetryFailedEmissionUseCase } from '../../application/use-cases/certification/RetryFailedEmissionUseCase';
 import { QueryCertificationHistoryUseCase } from '../../application/use-cases/certification/QueryCertificationHistoryUseCase';
@@ -69,6 +71,7 @@ export interface ApplicationContainer {
     identifyEligible: IdentifyEligibleStudentsUseCase;
     simulateEmissions: SimulateEmissionsUseCase;
     emitCredential: EmitCredentialUseCase;
+    emitCredentialByEmail: EmitCredentialByEmailUseCase;
     queryEmissionStatus: QueryEmissionStatusUseCase;
     retryFailedEmission: RetryFailedEmissionUseCase;
     queryCertificationHistory: QueryCertificationHistoryUseCase;
@@ -158,6 +161,16 @@ export function createContainer(overrides: ContainerOverrides = {}): Application
     compatibility,
     logger,
   );
+  const ensureStudent = new EnsureStudentFromLearnWorldsUseCase(
+    students,
+    learnWorlds,
+    ids,
+  );
+  const emitCredentialByEmail = new EmitCredentialByEmailUseCase(
+    ensureStudent,
+    emitCredential,
+    courses,
+  );
   const retryFailedEmission = new RetryFailedEmissionUseCase(
     certifications,
     emitCredential,
@@ -200,6 +213,7 @@ export function createContainer(overrides: ContainerOverrides = {}): Application
       identifyEligible,
       simulateEmissions,
       emitCredential,
+      emitCredentialByEmail,
       queryEmissionStatus: new QueryEmissionStatusUseCase(certifications, pok),
       retryFailedEmission,
       queryCertificationHistory: new QueryCertificationHistoryUseCase(
