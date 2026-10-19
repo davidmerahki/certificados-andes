@@ -37,7 +37,7 @@ Aplica a Production, Preview y Development:
 - `SIMULATION_MODE` (`true` hasta validar)
 - `CRON_SECRET` (para el cron de Vercel)
 
-Node recomendado en Vercel: **20.x** (Project → Settings → General → Node.js Version).
+Node en Vercel: **24.x** (requerido; 20.x ya está discontinuado en Vercel).
 
 ## Tras el deploy
 
