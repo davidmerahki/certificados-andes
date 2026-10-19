@@ -1,3 +1,8 @@
+/**
+ * Entrypoint for local Node and Vercel Express.
+ * Vercel requires a direct `express` import in this file for detection.
+ */
+import express from 'express';
 import { createContainer } from './infrastructure/di/container';
 import { connectDatabase } from './infrastructure/config/database';
 import { createApp } from './presentation/http/app';
@@ -14,7 +19,9 @@ async function ensureDatabase(): Promise<void> {
   await dbReady;
 }
 
-const app = createApp(container, { ensureReady: ensureDatabase });
+const app: express.Express = createApp(container, {
+  ensureReady: ensureDatabase,
+});
 
 /** Vercel Express entry — default export (no listen required). */
 export default app;
