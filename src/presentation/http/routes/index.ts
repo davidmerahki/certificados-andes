@@ -16,6 +16,49 @@ export function createApiRouter(container: ApplicationContainer): Router {
     res.json({ success: true, message: 'API funcionando correctamente' });
   });
 
+  /**
+   * Vercel Cron entrypoint (schedule in vercel.json).
+   * Auth: Authorization Bearer CRON_SECRET, or x-api-key ADMIN_API_KEY.
+   */
+  router.get('/cron/sync', async (req, res, next) => {
+    try {
+      const cronSecret = process.env.CRON_SECRET;
+      const authHeader = req.header('authorization') ?? '';
+      const apiKey =
+        req.header('x-api-key') ??
+        authHeader.replace(/^Bearer\s+/i, '');
+
+      const authorized =
+        (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+        apiKey === container.config.adminApiKey;
+
+      if (!authorized) {
+        res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Invalid cron credentials' },
+        });
+        return;
+      }
+
+      const run = await container.useCases.runSynchronization.execute({
+        simulation: container.config.sync.simulationMode,
+        concurrency: container.config.sync.concurrency,
+      });
+
+      res.status(202).json({
+        success: true,
+        data: {
+          id: run.id,
+          status: run.status,
+          totalEligible: run.totalEligible,
+          totalEmitted: run.totalEmitted,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  });
+
   // Courses (admin)
   router.post('/courses', auth, courses.register);
   router.get('/courses', auth, courses.list);

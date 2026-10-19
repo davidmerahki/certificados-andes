@@ -4,10 +4,30 @@ import { ApplicationContainer } from '../../infrastructure/di/container';
 import { createApiRouter } from './routes';
 import { createErrorHandler } from './middlewares/errorHandler';
 
-export function createApp(container: ApplicationContainer): Express {
+export interface CreateAppOptions {
+  /** Lazy readiness (e.g. Mongo connect) — needed on Vercel serverless */
+  ensureReady?: () => Promise<void>;
+}
+
+export function createApp(
+  container: ApplicationContainer,
+  options: CreateAppOptions = {},
+): Express {
   const app = express();
   app.use(cors());
   app.use(express.json());
+
+  if (options.ensureReady) {
+    app.use(async (_req, _res, next) => {
+      try {
+        await options.ensureReady!();
+        next();
+      } catch (err) {
+        next(err);
+      }
+    });
+  }
+
   app.use('/api', createApiRouter(container));
   app.use(createErrorHandler(container.logger));
   return app;

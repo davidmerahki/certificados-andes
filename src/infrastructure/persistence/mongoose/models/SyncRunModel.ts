@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface SyncRunDocument extends Document {
+export interface SyncRunDocument extends Omit<Document, '_id'> {
+  _id: string;
   mode: string;
   status: string;
   simulation: boolean;

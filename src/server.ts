@@ -3,27 +3,44 @@ import { connectDatabase } from './infrastructure/config/database';
 import { createApp } from './presentation/http/app';
 import { NightlySyncScheduler } from './infrastructure/scheduling/NightlySyncScheduler';
 
-async function bootstrap() {
-  const container = createContainer();
-  await connectDatabase(container.config.mongoUri, container.logger);
+const container = createContainer();
 
-  const app = createApp(container);
+let dbReady: Promise<void> | null = null;
 
-  const scheduler = new NightlySyncScheduler(
-    container.useCases.runSynchronization,
-    container.config.sync.cron,
-    container.config.sync.simulationMode,
-    container.config.sync.concurrency,
-    container.logger,
-  );
-  scheduler.start();
-
-  app.listen(container.config.port, () => {
-    container.logger.info(`Server running on http://localhost:${container.config.port}`);
-  });
+async function ensureDatabase(): Promise<void> {
+  if (!dbReady) {
+    dbReady = connectDatabase(container.config.mongoUri, container.logger);
+  }
+  await dbReady;
 }
 
-bootstrap().catch((err) => {
-  console.error('Failed to start server', err);
-  process.exit(1);
-});
+const app = createApp(container, { ensureReady: ensureDatabase });
+
+/** Vercel Express entry — default export (no listen required). */
+export default app;
+
+const isVercel = Boolean(process.env.VERCEL);
+
+if (!isVercel) {
+  ensureDatabase()
+    .then(() => {
+      const scheduler = new NightlySyncScheduler(
+        container.useCases.runSynchronization,
+        container.config.sync.cron,
+        container.config.sync.simulationMode,
+        container.config.sync.concurrency,
+        container.logger,
+      );
+      scheduler.start();
+
+      app.listen(container.config.port, () => {
+        container.logger.info(
+          `Server running on http://localhost:${container.config.port}`,
+        );
+      });
+    })
+    .catch((err) => {
+      console.error('Failed to start server', err);
+      process.exit(1);
+    });
+}

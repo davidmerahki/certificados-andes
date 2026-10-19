@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface CourseConfigDocument extends Document {
+export interface CourseConfigDocument extends Omit<Document, '_id'> {
+  _id: string;
   learnWorldsCourseId: string;
   name: string;
   description?: string;
