@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Plataforma de certificación multi-curso LearnWorlds → POK (Clean Architecture)",
   "main": "dist/server.js",
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "build": "tsc --noEmit",
     "build:dist": "tsc",
@@ -10,10 +11,12 @@
     "dev": "tsx watch src/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "preinstall": "npx only-allow pnpm"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "pnpm": ">=9"
   },
   "keywords": [
     "clean-architecture",
@@ -39,8 +42,14 @@
   },
   "devDependencies": {
     "@types/supertest": "^6.0.2",
+    "only-allow": "^1.2.1",
     "supertest": "^7.0.0",
     "tsx": "^4.19.2",
     "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
